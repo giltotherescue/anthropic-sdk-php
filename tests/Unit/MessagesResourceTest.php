@@ -165,6 +165,31 @@ class MessagesResourceTest extends TestCase
         $this->assertEquals(['STOP'], $request['stop_sequences']);
     }
 
+    public function test_create_options_keep_output_config(): void
+    {
+        $outputConfig = [
+            'effort' => 'low',
+            'format' => [
+                'type' => 'json_schema',
+                'schema' => ['type' => 'object', 'additionalProperties' => false],
+            ],
+        ];
+
+        $resource = $this->api->messages();
+        $validate = new \ReflectionMethod($resource, 'validateOptions');
+        $validate->setAccessible(true);
+        $validate->invoke($resource, [
+            'model' => Models::CLAUDE_3_5_HAIKU,
+            'max_tokens' => 512,
+            'messages' => [['role' => 'user', 'content' => 'Hello']],
+            'thinking' => ['type' => 'adaptive'],
+            'output_config' => $outputConfig,
+        ]);
+
+        $this->assertSame($outputConfig, $resource->getRequest()['output_config']);
+        $this->assertSame(['type' => 'adaptive'], $resource->getRequest()['thinking']);
+    }
+
     public function test_tool_choice_string_converts_to_array(): void
     {
         $resource = $this->api->messages()
