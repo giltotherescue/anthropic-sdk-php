@@ -38,6 +38,8 @@ class MessagesResource extends APIResource
 
     private ?array $thinking = null;
 
+    private ?array $outputConfig = null;
+
     private array $betaHeaders = [];
 
     public function model(string $model): self
@@ -146,6 +148,13 @@ class MessagesResource extends APIResource
         return $this;
     }
 
+    public function outputConfig(array $outputConfig): self
+    {
+        $this->outputConfig = $outputConfig;
+
+        return $this;
+    }
+
     public function withBeta(string $beta): self
     {
         if (!in_array($beta, $this->betaHeaders)) {
@@ -202,6 +211,7 @@ class MessagesResource extends APIResource
             'tool_choice' => $this->toolChoice,
             'service_tier' => $this->serviceTier,
             'thinking' => $this->thinking,
+            'output_config' => $this->outputConfig,
         ], fn($value) => $value !== null);
 
         return [
@@ -253,6 +263,9 @@ class MessagesResource extends APIResource
         }
         if (isset($options['thinking'])) {
             $this->thinking($options['thinking']); // Use setter for validation
+        }
+        if (isset($options['output_config'])) {
+            $this->outputConfig($options['output_config']);
         }
 
         // Final validation of required fields
